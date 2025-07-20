@@ -30,7 +30,7 @@ module.exports = {
         allowNull: false,
       },
       overview: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
         allowNull: false,
       },
       rating: {
