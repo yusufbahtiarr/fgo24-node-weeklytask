@@ -1,13 +1,24 @@
 "use strict";
 const { Model } = require("sequelize");
+
 module.exports = (sequelize, DataTypes) => {
   class Genre extends Model {
-    static associate(models) {}
+    static associate(models) {
+      Genre.belongsToMany(models.Movie, {
+        through: "movie_genres",
+        foreignKey: "genre_id",
+        otherKey: "movie_id",
+        as: "movies",
+      });
+    }
   }
+
   Genre.init(
     {
-      genre_name: DataTypes.STRING,
-      allowNull: false,
+      genre_name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
     },
     {
       sequelize,
@@ -17,5 +28,6 @@ module.exports = (sequelize, DataTypes) => {
       underscored: true,
     }
   );
+
   return Genre;
 };
