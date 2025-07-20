@@ -14,8 +14,8 @@ Host: localhost:8080
 Content-Type: application/json
 
 {
-  "email": "yusuf@mail.com",
-  "password": "yusuf123"
+  "email": "admin@mail.com",
+  "password": "admin123"
 }
 ###
 
@@ -52,6 +52,13 @@ GET /users/transaction-history HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImVtYWlsIjoieXVzdWZAbWFpbC5jb20iLCJpYXQiOjE3NTMwMzkyOTEsImV4cCI6MTc1MzA0NjQ5MX0.8E66M2JIUfyEYBjxs2cPR5IwuCKH0lcWbIw_wJMdQmc
+
+###
+
+GET /transaction/all-transaction HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbGUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AbWFpbC5jb20iLCJpYXQiOjE3NTMwNDE5OTksImV4cCI6MTc1MzA0OTE5OX0.4Pro3u2pMRkvGF62nxFJW76-u4ZgAabLceKxNbcWJ1c
 
 ###
 
