@@ -62,6 +62,34 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvb
 
 ###
 
+GET /transaction/booked_seats?movie_id=12&movie_date=2025-07-16&cinema=2&time=1&location=2 HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbGUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AbWFpbC5jb20iLCJpYXQiOjE3NTMwNDE5OTksImV4cCI6MTc1MzA0OTE5OX0.4Pro3u2pMRkvGF62nxFJW76-u4ZgAabLceKxNbcWJ1c
+
+###
+
+POST /transaction HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbGUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AbWFpbC5jb20iLCJpYXQiOjE3NTMwNDE5OTksImV4cCI6MTc1MzA0OTE5OX0.4Pro3u2pMRkvGF62nxFJW76-u4ZgAabLceKxNbcWJ1c
+
+
+{
+  "name": "Yusuf Bahtiar",
+  "email": "yusuf@mail.com",
+  "phone": "08123456789",
+  "total_amount": 90000,
+  "movie_date": "2025-07-16",
+  "cinema_id": 2,
+  "location_id": 2,
+  "movie_id": 12,
+  "payment_method_id": 1,
+  "time_id": 1,
+  "seats": ["A1", "A2"]
+}
+
+
 
 
 
