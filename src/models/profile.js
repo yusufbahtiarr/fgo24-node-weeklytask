@@ -13,9 +13,18 @@ module.exports = (sequelize, DataTypes) => {
 
   Profile.init(
     {
-      fullname: DataTypes.STRING,
-      phone: DataTypes.STRING,
-      image_url: DataTypes.STRING,
+      fullname: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      phone: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      image_url: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
     },
     {
       sequelize,

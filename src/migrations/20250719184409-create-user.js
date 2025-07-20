@@ -11,9 +11,11 @@ module.exports = {
       },
       email: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
       password: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
       roles: {
         type: Sequelize.ENUM("admin", "user"),
@@ -42,6 +44,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("users"); // ✅ lowercase
+    await queryInterface.dropTable("users");
   },
 };

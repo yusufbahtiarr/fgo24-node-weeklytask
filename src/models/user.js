@@ -13,10 +13,27 @@ module.exports = (sequelize, DataTypes) => {
 
   User.init(
     {
-      email: DataTypes.STRING,
-      password: DataTypes.STRING,
-      roles: DataTypes.STRING,
-      profile_id: DataTypes.INTEGER,
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        validate: {
+          isEmail: true,
+        },
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      roles: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: "user",
+      },
+      profile_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
     },
     {
       sequelize,
