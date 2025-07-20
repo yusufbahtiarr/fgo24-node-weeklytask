@@ -2,6 +2,8 @@ const { constants: http } = require("http2");
 const { hashPassword } = require("../utils/password");
 // const { saveOTP, verifyOTP } = require("../db/old/auth.model");
 const { User, Profile } = require("../models");
+const { verifyPassword } = require("../utils/password");
+const { generateToken } = require("../utils/jwt");
 
 /**
  *
@@ -10,32 +12,67 @@ const { User, Profile } = require("../models");
  * @returns
  */
 
-exports.login = function (req, res) {
+exports.login = async (req, res) => {
   const { email, password } = req.body;
 
-  if (!email && !password) {
+  if (!email || !password) {
     return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
       success: false,
-      message: "Email dan password diwajib diisi",
+      message: "Email dan password wajib diisi",
     });
   }
 
-  const userLogin = findUserByEmail(email);
-  if (!userLogin || userLogin.password !== password) {
-    return res.status(http.HTTP_STATUS_UNAUTHORIZED).json({
+  try {
+    const user = await User.findOne({
+      where: { email },
+      include: {
+        model: Profile,
+        as: "profile",
+      },
+    });
+
+    if (!user) {
+      return res.status(http.HTTP_STATUS_UNAUTHORIZED).json({
+        success: false,
+        message: "Email atau password salah",
+      });
+    }
+
+    const isValid = await verifyPassword(user.password, password);
+    if (!isValid) {
+      return res.status(http.HTTP_STATUS_UNAUTHORIZED).json({
+        success: false,
+        message: "Email atau password salah",
+      });
+    }
+
+    const payload = {
+      userId: user.id,
+      role: user.roles,
+      email: user.email,
+    };
+
+    const token = generateToken(payload);
+
+    return res.status(http.HTTP_STATUS_OK).json({
+      success: true,
+      message: "Login berhasil",
+      results: {
+        token,
+        user: {
+          id: user.id,
+          email: user.email,
+          roles: user.roles,
+        },
+      },
+    });
+  } catch (error) {
+    return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "Email atau password salah.",
+      message: "Terjadi kesalahan saat login",
+      error: error.message,
     });
   }
-  return res.status(http.HTTP_STATUS_OK).json({
-    success: true,
-    message: "Login berhasil",
-    results: {
-      id: userLogin.id,
-      username: userLogin.username,
-      email: userLogin.email,
-    },
-  });
 };
 
 /**
