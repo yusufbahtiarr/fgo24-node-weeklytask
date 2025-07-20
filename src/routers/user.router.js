@@ -31,5 +31,10 @@ userRouter.patch(
   upload.single("picture"),
   userController.updateUserProfile
 );
+userRouter.get(
+  "/transaction-history",
+  verifyToken,
+  userController.getTransactionHistory
+);
 
 module.exports = userRouter;

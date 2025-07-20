@@ -14,8 +14,8 @@ Host: localhost:8080
 Content-Type: application/json
 
 {
-  "email": "yusuf2@mail.com",
-  "password": "1111"
+  "email": "yusuf@mail.com",
+  "password": "yusuf123"
 }
 ###
 
@@ -46,6 +46,15 @@ Content-Type: image/png
 
 < ./ccc.png
 ------WebkitBoundary--
+
+###
+GET /users/transaction-history HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImVtYWlsIjoieXVzdWZAbWFpbC5jb20iLCJpYXQiOjE3NTMwMzkyOTEsImV4cCI6MTc1MzA0NjQ5MX0.8E66M2JIUfyEYBjxs2cPR5IwuCKH0lcWbIw_wJMdQmc
+
+###
+
 
 
 
