@@ -30,7 +30,7 @@ module.exports = (sequelize, DataTypes) => {
       });
       Transaction.hasMany(models.TransactionDetail, {
         foreignKey: "transaction_id",
-        as: "transaction_details",
+        as: "transaction_detail",
       });
     }
   }

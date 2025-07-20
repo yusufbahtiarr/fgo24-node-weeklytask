@@ -10,5 +10,15 @@ transactionRouter.get(
   isAdmin,
   transactionController.getAllTransaction
 );
+transactionRouter.get(
+  "/booked_seats",
+  verifyToken,
+  transactionController.getBookedSeats
+);
+transactionRouter.post(
+  "",
+  verifyToken,
+  transactionController.createTransaction
+);
 
 module.exports = transactionRouter;
