@@ -4,6 +4,7 @@ const fs = require("fs");
 const fsPromises = fs.promises;
 const { User, Profile } = require("../models");
 const { hashPassword } = require("../utils/password");
+const jwt = require("jsonwebtoken");
 
 /**
  *
@@ -11,49 +12,63 @@ const { hashPassword } = require("../utils/password");
  * @param {import("express").Response} res
  */
 
-exports.detailUser = async function (req, res) {
-  const { id } = req.params;
-  const user = await User.findByPk(parseInt(id));
-  if (!user) {
-    return res.status(http.HTTP_STATUS_NOT_FOUND).json({
+exports.getUserProfile = async function (req, res) {
+  try {
+    const userId = parseInt(req.userId);
+
+    const user = await User.findByPk(parseInt(userId));
+
+    const profile = await Profile.findByPk(parseInt(user.profile_id));
+
+    if (!user) {
+      return res.status(http.HTTP_STATUS_NOT_FOUND).json({
+        success: false,
+        message: "Data user tidak ditemukan",
+      });
+    }
+
+    return res.status(http.HTTP_STATUS_OK).json({
+      success: true,
+      message: "Detail user",
+      results: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        fullname: profile.fullname,
+        phone: profile.phone,
+        image_url: profile.image_url,
+      },
+    });
+  } catch (err) {
+    console.error("Error getUserProfile:", err);
+    return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "Data user tidak ditemukan",
+      message: "Terjadi kesalahan saat mengambil data profile.",
     });
   }
-
-  res.status(http.HTTP_STATUS_OK).json({
-    success: true,
-    message: "Detail user",
-    results: {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      picture: user.picture,
-    },
-  });
 };
 
-/**
- *
- * @param {import("express").Request} req
- * @param {import("express").Response} res
- */
+// /**
+//  *
+//  * @param {import("express").Request} req
+//  * @param {import("express").Response} res
+//  */
 
-exports.listAllUsers = async function (req, res) {
-  const users = await User.findAll();
-  if (!users) {
-    return res.status(http.HTTP_STATUS_NOT_FOUND).json({
-      success: false,
-      message: "Data user tidak ditemukan",
-    });
-  }
+// exports.listAllUsers = async function (req, res) {
+//   const users = await User.findAll();
+//   if (!users) {
+//     return res.status(http.HTTP_STATUS_NOT_FOUND).json({
+//       success: false,
+//       message: "Data user tidak ditemukan",
+//     });
+//   }
 
-  res.status(http.HTTP_STATUS_OK).json({
-    success: true,
-    message: "List all user",
-    result: users,
-  });
-};
+//   res.status(http.HTTP_STATUS_OK).json({
+//     success: true,
+//     message: "List all user",
+//     result: users,
+//   });
+// };
 
 /**
  *
@@ -62,115 +77,53 @@ exports.listAllUsers = async function (req, res) {
  * @returns
  */
 
-exports.createUser = async function (req, res) {
-  const { email, password, roles, fullname, phone } = req.body;
+// /**
+//  *
+//  * @param {import("express").Request} req
+//  * @param {import("express").Response} res
+//  */
 
-  if (!email || !password) {
-    return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
-      success: false,
-      message: "Email dan password wajib diisi",
-    });
-  }
+// exports.deleteUser = async function (req, res) {
+//   const { id } = req.params;
+//   try {
+//     const user = await User.findByPk(parseInt(id));
+//     if (!user) {
+//       return res.status(http.HTTP_STATUS_NOT_FOUND).json({
+//         success: false,
+//         message: "Data user tidak tidak ditemukan",
+//       });
+//     }
+//     const deletedUser = await User.destroy({
+//       where: {
+//         id: parseInt(id),
+//       },
+//       returning: ["true"],
+//     });
 
-  try {
-    const existsUser = await User.findOne({ where: { email } });
-
-    if (existsUser) {
-      return res.status(http.HTTP_STATUS_CONFLICT).json({
-        success: false,
-        message: "Email sudah terdaftar",
-      });
-    }
-
-    const image_url = req.file
-      ? `/uploads/profiles/${req.file.filename}`
-      : null;
-
-    const profile = await Profile.create({
-      fullname,
-      phone,
-      image_url,
-    });
-
-    const hashedPassword = await hashPassword(password);
-
-    const newUser = await User.create({
-      email,
-      password: hashedPassword,
-      roles: roles || "user",
-      profile_id: profile.id,
-    });
-
-    return res.status(http.HTTP_STATUS_CREATED).json({
-      success: true,
-      message: "User berhasil dibuat",
-      result: {
-        id: newUser.id,
-        email: newUser.email,
-        roles: newUser.roles,
-        profile: {
-          id: profile.id,
-          fullname: profile.fullname,
-          phone: profile.phone,
-          image_url: profile.image_url,
-        },
-      },
-    });
-  } catch (error) {
-    return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: "Gagal membuat user",
-      error: error.message,
-    });
-  }
-};
-/**
- *
- * @param {import("express").Request} req
- * @param {import("express").Response} res
- */
-
-exports.deleteUser = async function (req, res) {
-  const { id } = req.params;
-  try {
-    const user = await User.findByPk(parseInt(id));
-    if (!user) {
-      return res.status(http.HTTP_STATUS_NOT_FOUND).json({
-        success: false,
-        message: "Data user tidak tidak ditemukan",
-      });
-    }
-    const deletedUser = await User.destroy({
-      where: {
-        id: parseInt(id),
-      },
-      returning: ["true"],
-    });
-
-    if (deletedUser === 0) {
-      return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: "Gagal menghapus user",
-      });
-    }
-    res.status(http.HTTP_STATUS_OK).json({
-      success: true,
-      message: "data user berhasil di hapus",
-      data: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        picture: user.picture,
-      },
-    });
-  } catch (error) {
-    return res.status(http.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: "Terjadi kesalahan server saat menghapus user.",
-      error: error.message,
-    });
-  }
-};
+//     if (deletedUser === 0) {
+//       return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
+//         success: false,
+//         message: "Gagal menghapus user",
+//       });
+//     }
+//     res.status(http.HTTP_STATUS_OK).json({
+//       success: true,
+//       message: "data user berhasil di hapus",
+//       data: {
+//         id: user.id,
+//         username: user.username,
+//         email: user.email,
+//         picture: user.picture,
+//       },
+//     });
+//   } catch (error) {
+//     return res.status(http.INTERNAL_SERVER_ERROR).json({
+//       success: false,
+//       message: "Terjadi kesalahan server saat menghapus user.",
+//       error: error.message,
+//     });
+//   }
+// };
 
 /**
  *
@@ -178,7 +131,7 @@ exports.deleteUser = async function (req, res) {
  * @param {import("express").Response} res
  */
 
-exports.updateUser = async function (req, res) {
+exports.updateUserProfile = async function (req, res) {
   const { id } = req.params;
   const picture = req.file;
   const { email, password, fullname, phone } = req.body;

@@ -19,5 +19,10 @@ Content-Type: application/json
 }
 ###
 
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjksInJvbGUiOiJ1c2VyIiwiZW1haWwiOiJ5dXN1ZjJAbWFpbC5jb20iLCJpYXQiOjE3NTMwMzAyODksImV4cCI6MTc1MzAzNzQ4OX0.fgEg95KoCs_tETNkZAllKUgbXrr-4fJGl7OFYM7zevU
+GET /users/profile HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjksImVtYWlsIjoieXVzdWYyQG1haWwuY29tIiwiaWF0IjoxNzUzMDMyNTgzLCJleHAiOjE3NTMwMzk3ODN9.rFT2zQ94UgO6YkVmcfkAOas7JC0VLxum89ZTYgOBKbw
+
+
 ###

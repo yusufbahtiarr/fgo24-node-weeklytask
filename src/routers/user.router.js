@@ -4,6 +4,7 @@ const path = require("node:path");
 const multer = require("multer");
 const { v4: uuidv4 } = require("uuid");
 const userController = require("../controllers/user.controller");
+const { verifyToken } = require("../middlewares/auth.middleware");
 
 const uploadDir = path.join("uploads", "profiles");
 if (!fs.existsSync(uploadDir)) {
@@ -23,10 +24,12 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-userRouter.get("", userController.listAllUsers);
-userRouter.get("/:id", userController.detailUser);
-userRouter.post("", upload.single("picture"), userController.createUser);
-userRouter.delete("/:id", userController.deleteUser);
-userRouter.patch("/:id", upload.single("picture"), userController.updateUser);
+userRouter.get("/profile", verifyToken, userController.getUserProfile);
+userRouter.patch(
+  "/profile",
+  verifyToken,
+  upload.single("picture"),
+  userController.updateUserProfile
+);
 
 module.exports = userRouter;
