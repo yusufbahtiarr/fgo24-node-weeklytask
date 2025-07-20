@@ -49,20 +49,12 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      total_payment: {
+      total_amount: {
         type: DataTypes.STRING,
         allowNull: false,
       },
       movie_date: {
         type: DataTypes.DATE,
-        allowNull: false,
-      },
-      status_payment: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      status_ticket: {
-        type: DataTypes.STRING,
         allowNull: false,
       },
       cinema_id: {
