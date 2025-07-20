@@ -2,11 +2,21 @@
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Director extends Model {
-    static associate(models) {}
+    static associate(models) {
+      Director.belongsToMany(models.Movie, {
+        through: "MovieDirector",
+        foreignKey: "director_id",
+        otherKey: "movie_id",
+        as: "movies",
+      });
+    }
   }
   Director.init(
     {
-      director_name: DataTypes.STRING,
+      director_name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
     },
     {
       sequelize,
