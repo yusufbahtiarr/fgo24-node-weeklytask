@@ -48,28 +48,6 @@ exports.getUserProfile = async function (req, res) {
   }
 };
 
-// /**
-//  *
-//  * @param {import("express").Request} req
-//  * @param {import("express").Response} res
-//  */
-
-// exports.listAllUsers = async function (req, res) {
-//   const users = await User.findAll();
-//   if (!users) {
-//     return res.status(http.HTTP_STATUS_NOT_FOUND).json({
-//       success: false,
-//       message: "Data user tidak ditemukan",
-//     });
-//   }
-
-//   res.status(http.HTTP_STATUS_OK).json({
-//     success: true,
-//     message: "List all user",
-//     result: users,
-//   });
-// };
-
 /**
  *
  * @param { import("express").Request} req
@@ -132,7 +110,8 @@ exports.getUserProfile = async function (req, res) {
  */
 
 exports.updateUserProfile = async function (req, res) {
-  const { id } = req.params;
+  const userId = parseInt(req.userId);
+
   const picture = req.file;
   const { email, password, fullname, phone } = req.body;
 
@@ -146,16 +125,17 @@ exports.updateUserProfile = async function (req, res) {
   if (picture) profileNewData.image_url = picture.filename;
 
   try {
-    const user = await User.findByPk(id);
+    const user = await User.findByPk(userId);
     if (!user) {
       return res.status(http.HTTP_STATUS_NOT_FOUND).json({
         success: false,
         message: "User tidak ditemukan",
       });
     }
+    console.log("user", user);
 
     const profile = await Profile.findByPk(user.profile_id);
-
+    console.log("profile", profile);
     if (!profile) {
       return res.status(http.HTTP_STATUS_NOT_FOUND).json({
         success: false,
@@ -174,7 +154,7 @@ exports.updateUserProfile = async function (req, res) {
 
     if (Object.keys(userNewData).length > 0) {
       await User.update(userNewData, {
-        where: { id },
+        where: { id: userId },
       });
     }
 
@@ -184,7 +164,7 @@ exports.updateUserProfile = async function (req, res) {
       });
     }
 
-    const updatedUser = await User.findByPk(id, {
+    const updatedUser = await User.findByPk(userId, {
       include: { model: Profile, as: "profile" },
       attributes: { exclude: ["password"] },
     });

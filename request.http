@@ -24,5 +24,28 @@ Host: localhost:8080
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjksImVtYWlsIjoieXVzdWYyQG1haWwuY29tIiwiaWF0IjoxNzUzMDMyNTgzLCJleHAiOjE3NTMwMzk3ODN9.rFT2zQ94UgO6YkVmcfkAOas7JC0VLxum89ZTYgOBKbw
 
-
 ###
+
+
+PATCH /users/profile HTTP/1.1
+Host: localhost:8080
+Content-Type: multipart/form-data; boundary=----WebkitBoundary
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjksImVtYWlsIjoieXVzdWYyQG1haWwuY29tIiwiaWF0IjoxNzUzMDM1OTUxLCJleHAiOjE3NTMwNDMxNTF9.28qbdPKb7SkDSbKffXvrl_056RR6vzsGLdquFyAVwiM
+
+------WebkitBoundary
+Content-Disposition: form-data; name="email"
+
+yusuf1@gmail.com
+------WebkitBoundary
+Content-Disposition: form-data; name="password"
+
+1111
+------WebkitBoundary
+Content-Disposition: form-data; name="picture"; filename="ccc.png"
+Content-Type: image/png
+
+< ./ccc.png
+------WebkitBoundary--
+
+
+
