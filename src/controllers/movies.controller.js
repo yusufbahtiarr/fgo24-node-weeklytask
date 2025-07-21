@@ -229,6 +229,17 @@ exports.getMovieByID = async function (req, res) {
  */
 exports.getUpcomingMovies = async function (_req, res) {
   try {
+    const redisKey = "movies:upcoming";
+
+    const cached = await redisClient.get(redisKey);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      return res.status(http.HTTP_STATUS_OK).json({
+        success: true,
+        message: "Data movies yang akan tayang berhasil diambil (redis)",
+        data: parsed,
+      });
+    }
     const today = new Date();
     const movies = await Movie.findAll({
       where: {
@@ -289,6 +300,8 @@ exports.getUpcomingMovies = async function (_req, res) {
               .join(", ")
           : "No directors",
     }));
+
+    await redisClient.setEx(redisKey, 600, JSON.stringify(result));
 
     res.status(http.HTTP_STATUS_OK).json({
       success: true,
