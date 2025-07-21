@@ -328,3 +328,35 @@ exports.getNowShowingMovies = async function (_req, res) {
     });
   }
 };
+
+/**
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ */
+exports.getAllGenres = async function (_req, res) {
+  try {
+    const genres = await Genre.findAll({
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+    });
+
+    if (!genres || genres.length === 0) {
+      return res.status(http.HTTP_STATUS_NOT_FOUND).json({
+        success: false,
+        message: "Tidak ada genre ditemukan.",
+      });
+    }
+
+    res.status(http.HTTP_STATUS_OK).json({
+      success: true,
+      message: "Data genre berhasil diambil.",
+      data: genres,
+    });
+  } catch (error) {
+    console.error("Error in getAllGenres:", error);
+    return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Terjadi kesalahan server saat mengambil data genre.",
+      error: error.message,
+    });
+  }
+};

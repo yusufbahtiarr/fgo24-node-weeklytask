@@ -4,6 +4,7 @@ const moviesController = require("../controllers/movies.controller");
 moviesRouter.get("", moviesController.getAllMovies);
 moviesRouter.get("/upcoming", moviesController.getUpcomingMovies);
 moviesRouter.get("/now-showing", moviesController.getNowShowingMovies);
+moviesRouter.get("/genres", moviesController.getAllGenres);
 moviesRouter.get("/:id", moviesController.getMovieByID);
 
 module.exports = moviesRouter;

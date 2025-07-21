@@ -101,6 +101,9 @@ Host: localhost:8080
 ###
 GET /movies/now-showing
 Host: localhost:8080
+###
+GET /movies/genres
+Host: localhost:8080
 
 
 
