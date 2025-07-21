@@ -12,6 +12,7 @@ transactionRouter.get(
 );
 transactionRouter.get("/locations", transactionController.getAllLocations);
 transactionRouter.get("/times", transactionController.getAllTimes);
+transactionRouter.get("/cinemas", transactionController.getAllCinemas);
 transactionRouter.get(
   "/payment-methods",
   verifyToken,

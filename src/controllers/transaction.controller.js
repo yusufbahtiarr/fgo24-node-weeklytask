@@ -401,3 +401,31 @@ exports.getAllTimes = async function (_req, res) {
     });
   }
 };
+
+exports.getAllCinemas = async function (_req, res) {
+  try {
+    const cinemas = await Cinema.findAll({
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+    });
+
+    if (!cinemas || cinemas.length === 0) {
+      return res.status(http.HTTP_STATUS_NOT_FOUND).json({
+        success: false,
+        message: "Tidak ada data bioskop ditemukan.",
+      });
+    }
+
+    res.status(http.HTTP_STATUS_OK).json({
+      success: true,
+      message: "Data bioskop berhasil diambil.",
+      data: cinemas,
+    });
+  } catch (error) {
+    console.error("Error in getAllCinemas:", error);
+    return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Terjadi kesalahan saat mengambil data bioskop.",
+      error: error.message,
+    });
+  }
+};
