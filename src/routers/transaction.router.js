@@ -23,6 +23,7 @@ transactionRouter.get(
 transactionRouter.post(
   "",
   verifyToken,
+  isAdmin,
   transactionController.createTransaction
 );
 
