@@ -429,3 +429,74 @@ exports.getAllCinemas = async function (_req, res) {
     });
   }
 };
+
+exports.getLastTransactionByUser = async function (req, res) {
+  const userId = req.userId;
+  try {
+    const lastTransaction = await Transaction.findOne({
+      where: { user_id: userId },
+      order: [["created_at", "DESC"]],
+      include: [
+        {
+          model: Movie,
+          as: "movie",
+          attributes: ["title"],
+        },
+        {
+          model: Cinema,
+          as: "cinema",
+          attributes: ["cinema_name"],
+        },
+        {
+          model: Time,
+          as: "time",
+          attributes: ["time"],
+        },
+        {
+          model: Location,
+          as: "location",
+          attributes: ["location"],
+        },
+        {
+          model: PaymentMethod,
+          as: "payment_method",
+          attributes: ["payment_method"],
+        },
+      ],
+    });
+
+    if (!lastTransaction) {
+      return res.status(http.HTTP_STATUS_NOT_FOUND).json({
+        success: false,
+        message: "Transaksi terakhir tidak ditemukan.",
+      });
+    }
+
+    const result = {
+      transaction_id: lastTransaction.id,
+      name: lastTransaction.name,
+      email: lastTransaction.email,
+      phone: lastTransaction.phone,
+      total_amount: lastTransaction.total_amount,
+      movie_date: lastTransaction.movie_date,
+      movie: lastTransaction.movie?.title,
+      cinema: lastTransaction.cinema?.cinema_name,
+      time: lastTransaction.time?.time,
+      location: lastTransaction.location?.location,
+      payment_method: lastTransaction.payment_method?.payment_method,
+    };
+
+    return res.status(http.HTTP_STATUS_OK).json({
+      success: true,
+      message: "Berhasil mengambil transaksi terakhir.",
+      result,
+    });
+  } catch (err) {
+    console.error("Error getLastTransactionByUser:", err);
+    return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Terjadi kesalahan saat mengambil transaksi terakhir.",
+      error: err.message,
+    });
+  }
+};

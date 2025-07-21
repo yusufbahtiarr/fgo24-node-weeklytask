@@ -26,8 +26,12 @@ transactionRouter.get(
 transactionRouter.post(
   "",
   verifyToken,
-  isAdmin,
   transactionController.createTransaction
+);
+transactionRouter.get(
+  "/ticket-result",
+  verifyToken,
+  transactionController.getLastTransactionByUser
 );
 
 module.exports = transactionRouter;
