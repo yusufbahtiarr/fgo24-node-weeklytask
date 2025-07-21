@@ -115,7 +115,7 @@ Authorization: Bearer <your_token_here>
 | POST   | /transactions                 | Add new transactions                                          | Yes  | User/Admin |
 | GET    | /transactions/all-transaction | Get all transactions                                          | Yes  | Admin      |
 | GET    | /transactions/ticket-result   | Retrieve the latest ticket transaction for the logged-in user | Yes  | User/Admin |
-| GET    | /transactions/bookedseats     | Retrieve all reserved seats for a specific showtime           | Yes  | User/Admin |
+| GET    | /transactions/booked-seats    | Retrieve all reserved seats for a specific showtime           | Yes  | User/Admin |
 | GET    | /transactions/payment-methods | Get all payment methods                                       | Yes  | User/Admin |
 | GET    | /transactions/locations       | Get all location                                              | Yes  | -          |
 | GET    | /transactions/times           | Get all times                                                 | Yes  | -          |
