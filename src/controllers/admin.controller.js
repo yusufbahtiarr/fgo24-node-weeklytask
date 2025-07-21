@@ -1,5 +1,7 @@
 const { constants: http } = require("http2");
 const { Movie, Cast, Genre, Director } = require("../models");
+const fs = require("fs");
+const path = require("path");
 
 /**
  * @param {import("express").Request} req
@@ -203,11 +205,11 @@ exports.deleteMovie = async function (req, res) {
  */
 exports.createMovie = async function (req, res) {
   let newMovie;
+  let uploadedPosterPath = null;
+  let uploadedBackdropPath = null;
   try {
     const {
       title,
-      poster_url,
-      backdrop_url,
       release_date,
       runtime,
       overview,
@@ -217,26 +219,65 @@ exports.createMovie = async function (req, res) {
       directors,
     } = req.body;
 
+    const parsedCasts =
+      typeof casts === "string" ? casts.split(",").map(Number) : [];
+    const parsedGenres =
+      typeof genres === "string" ? genres.split(",").map(Number) : [];
+    const parsedDirectors =
+      typeof directors === "string" ? directors.split(",").map(Number) : [];
+
+    const isInvalidArray = (arr) =>
+      !Array.isArray(arr) || arr.length === 0 || arr.some(isNaN);
+
+    const posterFile =
+      req.files && req.files["poster_file"]
+        ? req.files["poster_file"][0]
+        : null;
+    const backdropFile =
+      req.files && req.files["backdrop_file"]
+        ? req.files["backdrop_file"][0]
+        : null;
+
+    if (!posterFile || !backdropFile) {
+      if (posterFile) {
+        fs.unlinkSync(posterFile.path);
+      }
+      if (backdropFile) {
+        fs.unlinkSync(backdropFile.path);
+      }
+      return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+        success: false,
+        message: "Kedua file poster dan backdrop movie wajib diunggah!",
+      });
+    }
+
+    uploadedPosterPath = posterFile.path;
+    uploadedBackdropPath = backdropFile.path;
+
     if (
       !title ||
       !release_date ||
       !runtime ||
       !overview ||
       !rating ||
-      !poster_url ||
-      !backdrop_url
+      !casts ||
+      isInvalidArray(parsedCasts) ||
+      isInvalidArray(parsedGenres) ||
+      isInvalidArray(parsedDirectors)
     ) {
+      if (uploadedPosterPath) fs.unlinkSync(uploadedPosterPath);
+      if (uploadedBackdropPath) fs.unlinkSync(uploadedBackdropPath);
       return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
         success: false,
         message:
-          "Judul, poster, backdrop, tanggal rilis, durasi, dan overview movie wajib diisi.",
+          "Judul, tanggal rilis, durasi, overview, rating, casts, genres, dan directors movie wajib diisi.",
       });
     }
 
-    const newMovie = await Movie.create({
+    newMovie = await Movie.create({
       title,
-      poster_url,
-      backdrop_url,
+      poster_url: posterFile.filename,
+      backdrop_url: backdropFile.filename,
       release_date,
       runtime,
       overview,
@@ -244,6 +285,8 @@ exports.createMovie = async function (req, res) {
     });
 
     if (!newMovie) {
+      if (uploadedPosterPath) fs.unlinkSync(uploadedPosterPath);
+      if (uploadedBackdropPath) fs.unlinkSync(uploadedBackdropPath);
       return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Gagal membuat entri movie baru.",
@@ -252,40 +295,43 @@ exports.createMovie = async function (req, res) {
 
     const associationPromises = [];
 
-    if (casts && Array.isArray(casts) && casts.length > 0) {
-      const existingCasts = await Cast.findAll({ where: { id: casts } });
-      if (existingCasts.length !== casts.length) {
-        return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
-          success: false,
-          message: "Beberapa ID cast yang diberikan tidak valid.",
-        });
-      }
-      associationPromises.push(newMovie.setCasts(casts));
-    }
-
-    if (genres && Array.isArray(genres) && genres.length > 0) {
-      const existingGenres = await Genre.findAll({ where: { id: genres } });
-      if (existingGenres.length !== genres.length) {
-        return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
-          success: false,
-          message: "Beberapa ID genre yang diberikan tidak valid.",
-        });
-      }
-      associationPromises.push(newMovie.setGenres(genres));
-    }
-
-    if (directors && Array.isArray(directors) && directors.length > 0) {
-      const existingDirectors = await Director.findAll({
-        where: { id: directors },
+    const existingCasts = await Cast.findAll({ where: { id: parsedCasts } });
+    if (existingCasts.length !== parsedCasts.length) {
+      await newMovie.destroy();
+      fs.unlinkSync(uploadedPosterPath);
+      fs.unlinkSync(uploadedBackdropPath);
+      return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+        success: false,
+        message: "Beberapa ID cast yang diberikan tidak valid.",
       });
-      if (existingDirectors.length !== directors.length) {
-        return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
-          success: false,
-          message: "Beberapa ID director yang diberikan tidak valid.",
-        });
-      }
-      associationPromises.push(newMovie.setDirectors(directors));
     }
+    associationPromises.push(newMovie.setCasts(parsedCasts));
+
+    const existingGenres = await Genre.findAll({ where: { id: parsedGenres } });
+    if (existingGenres.length !== parsedGenres.length) {
+      await newMovie.destroy();
+      fs.unlinkSync(uploadedPosterPath);
+      fs.unlinkSync(uploadedBackdropPath);
+      return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+        success: false,
+        message: "Beberapa ID genre yang diberikan tidak valid.",
+      });
+    }
+    associationPromises.push(newMovie.setGenres(parsedGenres));
+
+    const existingDirectors = await Director.findAll({
+      where: { id: parsedDirectors },
+    });
+    if (existingDirectors.length !== parsedDirectors.length) {
+      await newMovie.destroy();
+      fs.unlinkSync(uploadedPosterPath);
+      fs.unlinkSync(uploadedBackdropPath);
+      return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+        success: false,
+        message: "Beberapa ID director yang diberikan tidak valid.",
+      });
+    }
+    associationPromises.push(newMovie.setDirectors(parsedDirectors));
 
     await Promise.all(associationPromises);
 
@@ -346,6 +392,26 @@ exports.createMovie = async function (req, res) {
     });
   } catch (error) {
     console.error("Error in createMovie:", error);
+    if (uploadedPosterPath && fs.existsSync(uploadedPosterPath)) {
+      try {
+        fs.unlinkSync(uploadedPosterPath);
+      } catch (unlinkErr) {
+        console.error(
+          "Gagal menghapus file poster yang diupload saat error:",
+          unlinkErr
+        );
+      }
+    }
+    if (uploadedBackdropPath && fs.existsSync(uploadedBackdropPath)) {
+      try {
+        fs.unlinkSync(uploadedBackdropPath);
+      } catch (unlinkErr) {
+        console.error(
+          "Gagal menghapus file backdrop yang diupload saat error:",
+          unlinkErr
+        );
+      }
+    }
     if (newMovie && newMovie.id) {
       await newMovie
         .destroy()
