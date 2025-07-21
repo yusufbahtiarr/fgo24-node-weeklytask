@@ -122,6 +122,11 @@ GET /admin/movies
 Host: localhost:8080
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbGUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AbWFpbC5jb20iLCJpYXQiOjE3NTMwNjgzMTMsImV4cCI6MTc1MzA3NTUxM30.DDTT4Q972rmTHPbeDS-y-zenYnle-O9NmnX5tnz6SQE
+###
+GET /admin/movies/12
+Host: localhost:8080
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbGUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AbWFpbC5jb20iLCJpYXQiOjE3NTMwNjgzMTMsImV4cCI6MTc1MzA3NTUxM30.DDTT4Q972rmTHPbeDS-y-zenYnle-O9NmnX5tnz6SQE
 
 
 
