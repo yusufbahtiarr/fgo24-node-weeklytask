@@ -136,6 +136,18 @@ exports.getAllMovies = async function (req, res) {
 exports.getMovieByID = async function (req, res) {
   try {
     const { id } = req.params;
+    const redisKey = `movie:id:${id}`;
+
+    const cached = await redisClient.get(redisKey);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      return res.status(http.HTTP_STATUS_OK).json({
+        success: true,
+        message: "Data movie berhasil diambil (redis)",
+        data: parsed,
+      });
+    }
+
     const movie = await Movie.findOne({
       where: { id: parseInt(id) },
       attributes: { exclude: ["createdAt", "updatedAt"] },
@@ -193,6 +205,8 @@ exports.getMovieByID = async function (req, res) {
               .join(", ")
           : "No directors",
     };
+
+    await redisClient.setEx(redisKey, 600, JSON.stringify(result));
 
     res.status(http.HTTP_STATUS_OK).json({
       success: true,
