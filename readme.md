@@ -117,9 +117,9 @@ Authorization: Bearer <your_token_here>
 | GET    | /transactions/ticket-result   | Retrieve the latest ticket transaction for the logged-in user | Yes  | User/Admin |
 | GET    | /transactions/booked-seats    | Retrieve all reserved seats for a specific showtime           | Yes  | User/Admin |
 | GET    | /transactions/payment-methods | Get all payment methods                                       | Yes  | User/Admin |
-| GET    | /transactions/locations       | Get all location                                              | Yes  | -          |
-| GET    | /transactions/times           | Get all times                                                 | Yes  | -          |
-| GET    | /transactions/cinemas         | Get all cinemas                                               | Yes  | -          |
+| GET    | /transactions/locations       | Get all location                                              | No   | -          |
+| GET    | /transactions/times           | Get all times                                                 | No   | -          |
+| GET    | /transactions/cinemas         | Get all cinemas                                               | No   | -          |
 
 ## Entity Relational Diagram Kukky
 
