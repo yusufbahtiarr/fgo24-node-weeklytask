@@ -1,9 +1,9 @@
 const { constants: http } = require("http2");
 const { hashPassword } = require("../utils/password");
-// const { saveOTP, verifyOTP } = require("../db/old/auth.model");
 const { User, Profile } = require("../models");
 const { verifyPassword } = require("../utils/password");
-const { generateToken } = require("../utils/jwt");
+const { generateToken, generateResetToken } = require("../utils/jwt");
+const redisClient = require("../lib/redis");
 
 /**
  *
@@ -147,36 +147,45 @@ exports.register = async function (req, res) {
  * @returns
  */
 
-exports.forgotPassword = function (req, res) {
-  const { email } = req.body;
-  if (!email) {
-    return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
-      success: false,
-      message: "Email tidak boleh kosong",
-    });
-  }
-  const user = findUserByEmail(email);
-  if (!user) {
-    return res.status(http.HTTP_STATUS_NOT_FOUND).json({
-      success: false,
-      message: "Email tidak terdaftar",
-    });
-  }
+exports.forgotPassword = async function (req, res) {
+  try {
+    const { email } = req.body;
 
-  const otpUser = saveOTP(user.id);
-  if (!otpUser) {
+    if (!email) {
+      return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+        success: false,
+        message: "Email tidak boleh kosong.",
+      });
+    }
+
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(http.HTTP_STATUS_NOT_FOUND).json({
+        success: false,
+        message: "Email tidak terdaftar.",
+      });
+    }
+
+    const resetToken = generateResetToken({ id: user.id, email: user.email });
+
+    const redisKey = `reset:${user.id}`;
+    await redisClient.setEx(redisKey, 600, resetToken);
+
+    return res.status(http.HTTP_STATUS_OK).json({
+      success: true,
+      message: "Token reset password berhasil dibuat.",
+      data: {
+        token: resetToken,
+      },
+    });
+  } catch (error) {
+    console.error("Error in forgotPassword:", error);
     return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "Gagal melakukan forgot password",
+      message: "Terjadi kesalahan saat proses forgot password.",
+      error: error.message,
     });
   }
-
-  res.status(http.HTTP_STATUS_OK).json({
-    success: true,
-    message:
-      "Berhasil melakukan forgot password. Gunakan otp ini untuk melakukan reset password",
-    data: "OTP: " + otpUser.otp,
-  });
 };
 
 exports.resetPassword = function (req, res) {

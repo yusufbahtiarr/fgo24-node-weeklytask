@@ -7,6 +7,10 @@ function generateToken(payload) {
   return jwt.sign(payload, SECRET_KEY, { expiresIn: EXPIRES_IN });
 }
 
+function generateResetToken(payload) {
+  return jwt.sign(payload, SECRET_KEY, { expiresIn: "10m" });
+}
+
 function verifyToken(token) {
   try {
     return jwt.verify(token, SECRET_KEY);
@@ -18,4 +22,5 @@ function verifyToken(token) {
 module.exports = {
   generateToken,
   verifyToken,
+  generateResetToken,
 };
