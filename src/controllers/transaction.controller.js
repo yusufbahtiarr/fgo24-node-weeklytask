@@ -373,3 +373,31 @@ exports.getAllLocations = async function (_req, res) {
     });
   }
 };
+
+exports.getAllTimes = async function (_req, res) {
+  try {
+    const times = await Time.findAll({
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+    });
+
+    if (!times || times.length === 0) {
+      return res.status(http.HTTP_STATUS_NOT_FOUND).json({
+        success: false,
+        message: "Tidak ada jadwal waktu ditemukan.",
+      });
+    }
+
+    res.status(http.HTTP_STATUS_OK).json({
+      success: true,
+      message: "Data jadwal waktu berhasil diambil.",
+      data: times,
+    });
+  } catch (error) {
+    console.error("Error in getAllTimes:", error);
+    return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Terjadi kesalahan server saat mengambil data jadwal waktu.",
+      error: error.message,
+    });
+  }
+};

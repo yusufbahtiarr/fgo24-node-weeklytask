@@ -265,8 +265,11 @@ Content-Type: image/jpg
 
 
 ###
-
 GET  /transaction/locations HTTP/1.1
+Host: localhost:8080
+
+###
+GET  /transaction/times HTTP/1.1
 Host: localhost:8080
 
 
