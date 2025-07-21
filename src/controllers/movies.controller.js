@@ -311,6 +311,17 @@ exports.getUpcomingMovies = async function (_req, res) {
  */
 exports.getNowShowingMovies = async function (_req, res) {
   try {
+    const redisKey = "movies:now_showing";
+
+    const cached = await redisClient.get(redisKey);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      return res.status(http.HTTP_STATUS_OK).json({
+        success: true,
+        message: "Data movies yang sedang tayang berhasil diambil (redis)",
+        data: parsed,
+      });
+    }
     const today = new Date();
     const oneMonthAgo = new Date();
     oneMonthAgo.setMonth(today.getMonth() - 1);
@@ -375,6 +386,8 @@ exports.getNowShowingMovies = async function (_req, res) {
               .join(", ")
           : "No directors",
     }));
+
+    await redisClient.setEx(redisKey, 600, JSON.stringify(result));
 
     res.status(http.HTTP_STATUS_OK).json({
       success: true,
