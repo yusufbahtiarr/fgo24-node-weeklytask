@@ -237,12 +237,12 @@ exports.createTransaction = async function (req, res) {
           phone: fullTransaction.phone,
           total_amount: fullTransaction.total_amount,
           movie_date: fullTransaction.movie_date,
-          cinema_name: fullTransaction.Cinema?.cinema_name,
-          location_name: fullTransaction.Location?.location_name,
-          title: fullTransaction.Movie?.title,
-          method: fullTransaction.PaymentMethod?.method,
-          time: fullTransaction.Time?.time,
-          seats: fullTransaction.TransactionDetails?.map((s) => s.seat),
+          title: fullTransaction.movie?.title,
+          location: fullTransaction.location?.location,
+          time: fullTransaction.time?.time,
+          cinema: fullTransaction.cinema?.cinema_name,
+          payment_method: fullTransaction.payment_method?.payment_method,
+          seats: fullTransaction.transaction_detail?.map((s) => s.seat),
         },
       });
     } catch (err) {
