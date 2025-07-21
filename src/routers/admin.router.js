@@ -31,6 +31,7 @@ adminRouter.post(
   isAdmin,
   adminController.createPaymentMethod
 );
+adminRouter.post("/genres", verifyToken, isAdmin, adminController.createGenre);
 adminRouter.get(
   "/movies/:id",
   verifyToken,

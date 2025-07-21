@@ -790,3 +790,36 @@ exports.createPaymentMethod = async function (req, res) {
     });
   }
 };
+
+/**
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ */
+
+exports.createGenre = async function (req, res) {
+  try {
+    const { genre_name } = req.body;
+
+    if (!genre_name) {
+      return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+        success: false,
+        message: "Nama genre tidak boleh kosong.",
+      });
+    }
+
+    const newGenre = await Genre.create({ genre_name });
+
+    return res.status(http.HTTP_STATUS_CREATED).json({
+      success: true,
+      message: "Genre berhasil ditambahkan.",
+      data: newGenre,
+    });
+  } catch (error) {
+    console.error("Error in createGenre:", error);
+    return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Terjadi kesalahan server saat menambahkan genre.",
+      error: error.message,
+    });
+  }
+};
