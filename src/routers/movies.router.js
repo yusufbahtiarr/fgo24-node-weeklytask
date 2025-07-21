@@ -5,6 +5,7 @@ moviesRouter.get("", moviesController.getAllMovies);
 moviesRouter.get("/upcoming", moviesController.getUpcomingMovies);
 moviesRouter.get("/now-showing", moviesController.getNowShowingMovies);
 moviesRouter.get("/genres", moviesController.getAllGenres);
+moviesRouter.get("/casts", moviesController.getAllCasts);
 moviesRouter.get("/:id", moviesController.getMovieByID);
 
 module.exports = moviesRouter;

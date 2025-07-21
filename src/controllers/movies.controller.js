@@ -360,3 +360,35 @@ exports.getAllGenres = async function (_req, res) {
     });
   }
 };
+
+/**
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ */
+exports.getAllCasts = async function (_req, res) {
+  try {
+    const casts = await Cast.findAll({
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+    });
+
+    if (!casts || casts.length === 0) {
+      return res.status(http.HTTP_STATUS_NOT_FOUND).json({
+        success: false,
+        message: "Tidak ada data cast ditemukan.",
+      });
+    }
+
+    res.status(http.HTTP_STATUS_OK).json({
+      success: true,
+      message: "Data cast berhasil diambil.",
+      data: casts,
+    });
+  } catch (error) {
+    console.error("Error in getAllCasts:", error);
+    return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Terjadi kesalahan server saat mengambil data cast.",
+      error: error.message,
+    });
+  }
+};
