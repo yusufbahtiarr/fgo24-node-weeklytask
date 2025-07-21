@@ -25,6 +25,12 @@ adminRouter.post(
   isAdmin,
   adminController.createCinema
 );
+adminRouter.post(
+  "/payment-methods",
+  verifyToken,
+  isAdmin,
+  adminController.createPaymentMethod
+);
 adminRouter.get(
   "/movies/:id",
   verifyToken,

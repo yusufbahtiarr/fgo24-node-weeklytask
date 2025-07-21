@@ -7,6 +7,7 @@ const {
   Time,
   Location,
   Cinema,
+  PaymentMethod,
 } = require("../models");
 const fs = require("fs");
 const path = require("path");
@@ -749,6 +750,42 @@ exports.createCinema = async function (req, res) {
     return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
       success: false,
       message: "Terjadi kesalahan server saat menambahkan cinema.",
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ */
+
+exports.createPaymentMethod = async function (req, res) {
+  try {
+    const { payment_method, image_url } = req.body;
+
+    if (!payment_method) {
+      return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+        success: false,
+        message: "Nama metode pembayaran dan image url tidak boleh kosong.",
+      });
+    }
+
+    const newPaymentMethod = await PaymentMethod.create({
+      payment_method,
+      image_url,
+    });
+
+    return res.status(http.HTTP_STATUS_CREATED).json({
+      success: true,
+      message: "Metode pembayaran berhasil ditambahkan.",
+      data: newPaymentMethod,
+    });
+  } catch (error) {
+    console.error("Error in createPaymentMethod:", error);
+    return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Terjadi kesalahan server saat menambahkan metode pembayaran.",
       error: error.message,
     });
   }
