@@ -95,6 +95,13 @@ Authorization: Bearer <your_token_here>
 | POST   | /admin/movies                 | Create new movie                                              | Yes  | Admin      |
 | DELETE | /admin/movies                 | Delete movie                                                  | Yes  | Admin      |
 | PATCH  | /admin/movies                 | Update movie                                                  | Yes  | Admin      |
+| POST   | /admin/times                  | Create new time                                               | Yes  | Admin      |
+| POST   | /admin/locations              | Create new location                                           | Yes  | Admin      |
+| POST   | /admin/cinemas                | Create new cinema                                             | Yes  | Admin      |
+| POST   | /admin/payment-methods        | Create new payment method                                     | Yes  | Admin      |
+| POST   | /admin/genres                 | Create new genre                                              | Yes  | Admin      |
+| POST   | /admin/casts                  | Create new cast                                               | Yes  | Admin      |
+| POST   | /admin/director               | Create new director                                           | Yes  | Admin      |
 | GET    | /users/profile                | Get user's data                                               | Yes  | User/Admin |
 | GET    | /users/transaction-history    | Get user's data transaction history                           | Yes  | User/Admin |
 | PATCH  | /users/profile                | Update user's data                                            | Yes  | User/Admin |
