@@ -345,3 +345,31 @@ exports.getAllPaymentMethods = async function (_req, res) {
     });
   }
 };
+
+exports.getAllLocations = async function (_req, res) {
+  try {
+    const locations = await Location.findAll({
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+    });
+
+    if (!locations || locations.length === 0) {
+      return res.status(http.HTTP_STATUS_NOT_FOUND).json({
+        success: false,
+        message: "Tidak ada lokasi ditemukan.",
+      });
+    }
+
+    res.status(http.HTTP_STATUS_OK).json({
+      success: true,
+      message: "Data lokasi berhasil diambil.",
+      data: locations,
+    });
+  } catch (error) {
+    console.error("Error in getAllLocations:", error);
+    return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Terjadi kesalahan server saat mengambil data lokasi.",
+      error: error.message,
+    });
+  }
+};

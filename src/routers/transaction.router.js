@@ -10,6 +10,7 @@ transactionRouter.get(
   isAdmin,
   transactionController.getAllTransaction
 );
+transactionRouter.get("/locations", transactionController.getAllLocations);
 transactionRouter.get(
   "/payment-methods",
   verifyToken,
