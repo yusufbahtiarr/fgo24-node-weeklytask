@@ -823,3 +823,36 @@ exports.createGenre = async function (req, res) {
     });
   }
 };
+
+/**
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ */
+
+exports.createCast = async function (req, res) {
+  try {
+    const { cast_name } = req.body;
+
+    if (!cast_name) {
+      return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+        success: false,
+        message: "Nama cast tidak boleh kosong.",
+      });
+    }
+
+    const newCast = await Cast.create({ cast_name });
+
+    return res.status(http.HTTP_STATUS_CREATED).json({
+      success: true,
+      message: "Cast berhasil ditambahkan.",
+      data: newCast,
+    });
+  } catch (error) {
+    console.error("Error in createCast:", error);
+    return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Terjadi kesalahan server saat menambahkan cast.",
+      error: error.message,
+    });
+  }
+};
