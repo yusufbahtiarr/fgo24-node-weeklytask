@@ -341,3 +341,12 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvb
   "cast_name": "Leonardo Gunn"
 }
 ###
+POST /admin/directors
+Host: localhost:8080
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbGUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AbWFpbC5jb20iLCJpYXQiOjE3NTMwODYzNTUsImV4cCI6MTc1MzA5MzU1NX0.V7Jb36GlsboQIIcDn2lEhsSP6GA9GIf6-dWk4X4YTaM
+
+{
+  "director_name": "Hann Carlo"
+}
+###

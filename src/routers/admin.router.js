@@ -33,6 +33,12 @@ adminRouter.post(
 );
 adminRouter.post("/genres", verifyToken, isAdmin, adminController.createGenre);
 adminRouter.post("/casts", verifyToken, isAdmin, adminController.createCast);
+adminRouter.post(
+  "/directors",
+  verifyToken,
+  isAdmin,
+  adminController.createDirector
+);
 adminRouter.get(
   "/movies/:id",
   verifyToken,

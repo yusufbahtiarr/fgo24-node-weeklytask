@@ -856,3 +856,36 @@ exports.createCast = async function (req, res) {
     });
   }
 };
+
+/**
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ */
+
+exports.createDirector = async function (req, res) {
+  try {
+    const { director_name } = req.body;
+
+    if (!director_name) {
+      return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+        success: false,
+        message: "Nama director tidak boleh kosong.",
+      });
+    }
+
+    const newDirector = await Director.create({ director_name });
+
+    return res.status(http.HTTP_STATUS_CREATED).json({
+      success: true,
+      message: "Director berhasil ditambahkan.",
+      data: newDirector,
+    });
+  } catch (error) {
+    console.error("Error in createDirector:", error);
+    return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Terjadi kesalahan server saat menambahkan director.",
+      error: error.message,
+    });
+  }
+};
