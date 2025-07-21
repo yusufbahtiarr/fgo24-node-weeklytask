@@ -19,6 +19,12 @@ adminRouter.post(
   isAdmin,
   adminController.createLocation
 );
+adminRouter.post(
+  "/cinemas",
+  verifyToken,
+  isAdmin,
+  adminController.createCinema
+);
 adminRouter.get(
   "/movies/:id",
   verifyToken,

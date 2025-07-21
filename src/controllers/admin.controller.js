@@ -1,5 +1,13 @@
 const { constants: http } = require("http2");
-const { Movie, Cast, Genre, Director, Time, Location } = require("../models");
+const {
+  Movie,
+  Cast,
+  Genre,
+  Director,
+  Time,
+  Location,
+  Cinema,
+} = require("../models");
 const fs = require("fs");
 const path = require("path");
 
@@ -705,6 +713,42 @@ exports.createLocation = async function (req, res) {
     return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
       success: false,
       message: "Terjadi kesalahan server saat menambahkan data lokasi.",
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ */
+
+exports.createCinema = async function (req, res) {
+  try {
+    const { cinema_name, image_url } = req.body;
+
+    if (!cinema_name || !image_url) {
+      return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+        success: false,
+        message: "Nama cinema dan image URL tidak boleh kosong.",
+      });
+    }
+
+    const newCinema = await Cinema.create({
+      cinema_name,
+      image_url,
+    });
+
+    return res.status(http.HTTP_STATUS_CREATED).json({
+      success: true,
+      message: "Cinema berhasil ditambahkan.",
+      data: newCinema,
+    });
+  } catch (error) {
+    console.error("Error in createCinema:", error);
+    return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Terjadi kesalahan server saat menambahkan cinema.",
       error: error.message,
     });
   }
