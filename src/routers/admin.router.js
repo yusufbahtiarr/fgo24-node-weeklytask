@@ -17,5 +17,11 @@ adminRouter.delete(
   isAdmin,
   adminController.deleteMovie
 );
+adminRouter.patch(
+  "/movies/:id",
+  verifyToken,
+  isAdmin,
+  adminController.updateMovie
+);
 
 module.exports = adminRouter;

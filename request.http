@@ -123,7 +123,7 @@ Host: localhost:8080
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbGUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AbWFpbC5jb20iLCJpYXQiOjE3NTMwNjgzMTMsImV4cCI6MTc1MzA3NTUxM30.DDTT4Q972rmTHPbeDS-y-zenYnle-O9NmnX5tnz6SQE
 ###
-GET /admin/movies/65
+GET /admin/movies/67
 Host: localhost:8080
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbGUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AbWFpbC5jb20iLCJpYXQiOjE3NTMwNjgzMTMsImV4cCI6MTc1MzA3NTUxM30.DDTT4Q972rmTHPbeDS-y-zenYnle-O9NmnX5tnz6SQE
@@ -142,8 +142,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvb
 
 {
   "title": "Legenda Keris Sakti",
-  "poster_url": "https://example.com/keris_sakti_poster.jpg",
-  "backdrop_url": "https://example.com/keris_sakti_backdrop.jpg",
+  "poster_url": "https://tmdb.com/keris_sakti_poster.jpg",
+  "backdrop_url": "https://tmdb.com/keris_sakti_backdrop.jpg",
   "release_date": "2025-10-20",
   "runtime": 130,
   "overview": "Kisah epik tentang seorang pahlawan yang harus menemukan keris legendaris untuk menyelamatkan desanya dari kegelapan abadi.",
@@ -151,6 +151,16 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvb
   "casts": [1, 5],
   "genres": [2, 4],
   "directors": [3]
+}
+
+###
+PATCH /admin/movies/67
+Host: localhost:8080
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbGUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AbWFpbC5jb20iLCJpYXQiOjE3NTMwNzA2ODEsImV4cCI6MTc1MzA3Nzg4MX0.cBbCBXL5lUWysMaGRI40z4FuDcjlXjLknd8Nz_QyL58
+
+{
+  "title": "Legenda Keris Sakti 2"
 }
 
 

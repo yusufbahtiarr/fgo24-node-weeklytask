@@ -1,6 +1,5 @@
 const { constants: http } = require("http2");
 const { Movie, Cast, Genre, Director } = require("../models");
-// const { Op } = require("sequelize");
 
 /**
  * @param {import("express").Request} req
@@ -357,6 +356,167 @@ exports.createMovie = async function (req, res) {
     return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
       success: false,
       message: "Terjadi kesalahan server saat mencoba menambahkan movie.",
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ */
+exports.updateMovie = async function (req, res) {
+  try {
+    const { id } = req.params;
+    const {
+      title,
+      poster_url,
+      backdrop_url,
+      release_date,
+      runtime,
+      overview,
+      rating,
+      casts,
+      genres,
+      directors,
+    } = req.body;
+
+    if (!id) {
+      return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+        success: false,
+        message: "ID movie diperlukan untuk melakukan pembaruan.",
+      });
+    }
+
+    const movie = await Movie.findByPk(id);
+
+    if (!movie) {
+      return res.status(http.HTTP_STATUS_NOT_FOUND).json({
+        success: false,
+        message: `movie dengan ID ${id} tidak ditemukan.`,
+      });
+    }
+
+    const updateData = {};
+    if (title) updateData.title = title;
+    if (poster_url) updateData.poster_url = poster_url;
+    if (backdrop_url) updateData.backdrop_url = backdrop_url;
+    if (release_date) updateData.release_date = release_date;
+    if (runtime) updateData.runtime = runtime;
+    if (overview) updateData.overview = overview;
+    if (rating) updateData.rating = rating;
+
+    await movie.update(updateData);
+
+    const associationPromises = [];
+
+    if (casts !== undefined) {
+      if (!Array.isArray(casts)) {
+        return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+          success: false,
+          message: "Data 'casts' harus berupa array.",
+        });
+      }
+      const existingCasts = await Cast.findAll({ where: { id: casts } });
+      if (existingCasts.length !== casts.length) {
+        return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+          success: false,
+          message: "Beberapa ID cast yang diberikan tidak valid.",
+        });
+      }
+      associationPromises.push(movie.setCasts(casts));
+    }
+
+    if (genres !== undefined) {
+      if (!Array.isArray(genres)) {
+        return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+          success: false,
+          message: "Data 'genres' harus berupa array.",
+        });
+      }
+      const existingGenres = await Genre.findAll({ where: { id: genres } });
+      if (existingGenres.length !== genres.length) {
+        return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+          success: false,
+          message: "Beberapa ID genre yang diberikan tidak valid.",
+        });
+      }
+      associationPromises.push(movie.setGenres(genres));
+    }
+
+    if (directors !== undefined) {
+      if (!Array.isArray(directors)) {
+        return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+          success: false,
+          message: "Data 'directors' harus berupa array.",
+        });
+      }
+      const existingDirectors = await Director.findAll({
+        where: { id: directors },
+      });
+      if (existingDirectors.length !== directors.length) {
+        return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+          success: false,
+          message: "Beberapa ID director yang diberikan tidak valid.",
+        });
+      }
+      associationPromises.push(movie.setDirectors(directors));
+    }
+
+    await Promise.all(associationPromises);
+
+    const updatedFullMovie = await Movie.findByPk(movie.id, {
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+      include: [
+        {
+          model: Cast,
+          as: "casts",
+          attributes: ["id", "cast_name"],
+          through: { attributes: [] },
+        },
+        {
+          model: Genre,
+          as: "genres",
+          attributes: ["id", "genre_name"],
+          through: { attributes: [] },
+        },
+        {
+          model: Director,
+          as: "directors",
+          attributes: ["id", "director_name"],
+          through: { attributes: [] },
+        },
+      ],
+    });
+
+    res.status(http.HTTP_STATUS_OK).json({
+      success: true,
+      message: `Movie "${updatedFullMovie.title}" (ID: ${id}) berhasil diperbarui!`,
+      data: {
+        id: updatedFullMovie.id,
+        title: updatedFullMovie.title,
+        poster_url: updatedFullMovie.poster_url,
+        backdrop_url: updatedFullMovie.backdrop_url,
+        release_date: updatedFullMovie.release_date,
+        runtime: updatedFullMovie.runtime,
+        overview: updatedFullMovie.overview,
+        rating: updatedFullMovie.rating,
+        casts: updatedFullMovie.casts.map((cast) => ({
+          name: cast.cast_name,
+        })),
+        genres: updatedFullMovie.genres.map((genre) => ({
+          name: genre.genre_name,
+        })),
+        directors: updatedFullMovie.directors.map((director) => ({
+          name: director.director_name,
+        })),
+      },
+    });
+  } catch (error) {
+    console.error("Error in updateMovie:", error);
+    return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Terjadi kesalahan server saat mencoba memperbarui movie.",
       error: error.message,
     });
   }
