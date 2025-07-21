@@ -434,7 +434,7 @@ exports.createMovie = async function (req, res) {
 exports.updateMovie = async function (req, res) {
   try {
     const { id } = req.params;
-    const {
+    let {
       title,
       poster_url,
       backdrop_url,
@@ -463,69 +463,125 @@ exports.updateMovie = async function (req, res) {
       });
     }
 
+    const posterFile = req.files?.poster_file?.[0];
+    const backdropFile = req.files?.backdrop_file?.[0];
     const updateData = {};
     if (title) updateData.title = title;
-    if (poster_url) updateData.poster_url = poster_url;
-    if (backdrop_url) updateData.backdrop_url = backdrop_url;
     if (release_date) updateData.release_date = release_date;
     if (runtime) updateData.runtime = runtime;
     if (overview) updateData.overview = overview;
     if (rating) updateData.rating = rating;
+    if (posterFile) {
+      if (movie.poster_url) {
+        const oldPosterPath = path.join(
+          __dirname,
+          "..",
+          "..",
+          "uploads",
+          "posters",
+          movie.poster_url
+        );
+        if (fs.existsSync(oldPosterPath)) {
+          fs.unlinkSync(oldPosterPath);
+          console.log("Poster lama dihapus:", oldPosterPath);
+        } else {
+          console.log("Poster lama tidak ditemukan:", oldPosterPath);
+        }
+      }
+      updateData.poster_url = posterFile.filename;
+    }
+    if (backdropFile) {
+      if (movie.backdrop_url) {
+        const oldBackdropPath = path.join(
+          __dirname,
+          "..",
+          "..",
+          "uploads",
+          "backdrops",
+          movie.backdrop_url
+        );
+        if (fs.existsSync(oldBackdropPath)) {
+          fs.unlinkSync(oldBackdropPath);
+          console.log("Backdrop lama dihapus:", oldBackdropPath);
+        } else {
+          console.log("Backdrop lama tidak ditemukan:", oldBackdropPath);
+        }
+      }
+      updateData.backdrop_url = backdropFile.filename;
+    }
 
     await movie.update(updateData);
 
     const associationPromises = [];
 
     if (casts !== undefined) {
+      if (typeof casts === "string") {
+        casts = casts.split(",").map((id) => parseInt(id));
+      }
+
       if (!Array.isArray(casts)) {
-        return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+        return res.status(400).json({
           success: false,
           message: "Data 'casts' harus berupa array.",
         });
       }
+
       const existingCasts = await Cast.findAll({ where: { id: casts } });
       if (existingCasts.length !== casts.length) {
-        return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+        return res.status(400).json({
           success: false,
           message: "Beberapa ID cast yang diberikan tidak valid.",
         });
       }
+
       associationPromises.push(movie.setCasts(casts));
     }
 
     if (genres !== undefined) {
+      if (typeof genres === "string") {
+        genres = genres.split(",").map((id) => parseInt(id));
+      }
+
       if (!Array.isArray(genres)) {
-        return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+        return res.status(400).json({
           success: false,
           message: "Data 'genres' harus berupa array.",
         });
       }
+
       const existingGenres = await Genre.findAll({ where: { id: genres } });
       if (existingGenres.length !== genres.length) {
-        return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+        return res.status(400).json({
           success: false,
           message: "Beberapa ID genre yang diberikan tidak valid.",
         });
       }
+
       associationPromises.push(movie.setGenres(genres));
     }
 
     if (directors !== undefined) {
+      if (typeof directors === "string") {
+        directors = directors.split(",").map((id) => parseInt(id));
+      }
+
       if (!Array.isArray(directors)) {
-        return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+        return res.status(400).json({
           success: false,
           message: "Data 'directors' harus berupa array.",
         });
       }
+
       const existingDirectors = await Director.findAll({
         where: { id: directors },
       });
       if (existingDirectors.length !== directors.length) {
-        return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+        return res.status(400).json({
           success: false,
           message: "Beberapa ID director yang diberikan tidak valid.",
         });
       }
+
       associationPromises.push(movie.setDirectors(directors));
     }
 

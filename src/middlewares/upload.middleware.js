@@ -1,6 +1,7 @@
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const { v4: uuidv4 } = require("uuid");
 
 const movieStorage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -17,10 +18,9 @@ const movieStorage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    cb(
-      null,
-      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
-    );
+    const ext = path.extname(file.originalname);
+    const savedFile = `${uuidv4()}${ext}`;
+    cb(null, savedFile);
   },
 });
 

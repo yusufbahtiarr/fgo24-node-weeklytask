@@ -176,7 +176,7 @@ Spiderman 21
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="release_date"
 
-2025-01-15
+2025-07-19
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="runtime"
 
@@ -205,12 +205,62 @@ Content-Disposition: form-data; name="directors"
 Content-Disposition: form-data; name="poster_file"; filename="poster.jpg"
 Content-Type: image/jpeg
 
-<./poster.jpg
+< ./poster.jpg
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="backdrop_file"; filename="backdrop.jpg"
 Content-Type: image/jpeg
 
-<./backdrop.jpg
+< ./backdrop.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###
+PATCH  /admin/movies/70 HTTP/1.1
+Host: localhost:8080
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbGUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AbWFpbC5jb20iLCJpYXQiOjE3NTMwODMzMTcsImV4cCI6MTc1MzA5MDUxN30.cqTnk1_-1IUNLGSVKsLQ1pFSo-huMxgWfcfgn2uNIfM
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="title"
+
+Spiderman 255
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="release_date"
+
+2025-07-19
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="runtime"
+
+150
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="overview"
+
+Ini tentang film yang sangat menarik dan penuh petualangan.
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="rating"
+
+8.9
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="casts"
+
+10,8,12
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="genres"
+
+12,6
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="directors"
+
+7
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="poster_file"; filename="poster.jpg"
+Content-Type: image/jpg
+
+< ./poster.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="backdrop_file"; filename="backdrop.jpg"
+Content-Type: image/jpg
+
+< ./backdrop.jpg
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
 
 

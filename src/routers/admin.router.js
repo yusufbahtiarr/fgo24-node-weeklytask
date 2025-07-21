@@ -28,6 +28,7 @@ adminRouter.patch(
   "/movies/:id",
   verifyToken,
   isAdmin,
+  uploadMovieImages,
   adminController.updateMovie
 );
 
