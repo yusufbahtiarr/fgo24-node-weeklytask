@@ -10,5 +10,11 @@ adminRouter.get(
   isAdmin,
   adminController.getMovieByID
 );
+adminRouter.delete(
+  "/movies/:id",
+  verifyToken,
+  isAdmin,
+  adminController.deleteMovie
+);
 
 module.exports = adminRouter;

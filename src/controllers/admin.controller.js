@@ -159,3 +159,41 @@ exports.getMovieByID = async function (req, res) {
     });
   }
 };
+
+/**
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ */
+exports.deleteMovie = async function (req, res) {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+        success: false,
+        message: "Parameter ID movie tidak ditemukan.",
+      });
+    }
+
+    const movie = await Movie.findByPk(id);
+
+    if (!movie) {
+      return res.status(http.HTTP_STATUS_NOT_FOUND).json({
+        success: false,
+        message: `Movie dengan ID ${id} tidak ditemukan.`,
+      });
+    }
+
+    await movie.destroy();
+    res.status(http.HTTP_STATUS_OK).json({
+      success: true,
+      message: `Movie "${movie.title}" (ID: ${id}) berhasil dihapus.`,
+    });
+  } catch (error) {
+    console.error("Error in deleteMovie:", error);
+    return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Terjadi kesalahan server saat mencoba menghapus movie.",
+      error: error.message,
+    });
+  }
+};
