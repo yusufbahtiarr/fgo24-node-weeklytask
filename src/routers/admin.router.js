@@ -13,6 +13,12 @@ adminRouter.post(
   adminController.createMovie
 );
 adminRouter.post("/times", verifyToken, isAdmin, adminController.createTime);
+adminRouter.post(
+  "/locations",
+  verifyToken,
+  isAdmin,
+  adminController.createLocation
+);
 adminRouter.get(
   "/movies/:id",
   verifyToken,

@@ -1,5 +1,5 @@
 const { constants: http } = require("http2");
-const { Movie, Cast, Genre, Director, Time } = require("../models");
+const { Movie, Cast, Genre, Director, Time, Location } = require("../models");
 const fs = require("fs");
 const path = require("path");
 
@@ -644,6 +644,11 @@ exports.updateMovie = async function (req, res) {
   }
 };
 
+/**
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ */
+
 exports.createTime = async function (req, res) {
   try {
     const { time } = req.body;
@@ -667,6 +672,39 @@ exports.createTime = async function (req, res) {
     return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
       success: false,
       message: "Terjadi kesalahan server saat menambahkan waktu tayang.",
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ */
+
+exports.createLocation = async function (req, res) {
+  try {
+    const { location } = req.body;
+
+    if (!location) {
+      return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+        success: false,
+        message: "Data location tidak boleh kosong.",
+      });
+    }
+
+    const newLocation = await Location.create({ location });
+
+    return res.status(http.HTTP_STATUS_CREATED).json({
+      success: true,
+      message: "Data lokasi berhasil ditambahkan.",
+      data: newLocation,
+    });
+  } catch (error) {
+    console.error("Error in createLocation:", error);
+    return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Terjadi kesalahan server saat menambahkan data lokasi.",
       error: error.message,
     });
   }
