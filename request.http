@@ -113,7 +113,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvb
 
 
 ###
-GET /movies
+GET /movies?genre=s&page=2
 Host: localhost:8080
 ###
 GET /movies/12

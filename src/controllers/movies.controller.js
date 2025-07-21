@@ -1,14 +1,49 @@
 const { constants: http } = require("http2");
 const { Movie, Cast, Genre, Director } = require("../models");
 const { Op } = require("sequelize");
+const redisClient = require("../lib/redis");
 
 /**
  * @param {import("express").Request} req
  * @param {import("express").Response} res
  */
-exports.getAllMovies = async function (_req, res) {
+exports.getAllMovies = async function (req, res) {
+  const { search = "", genre = "", page = 1, limit = 10 } = req.query;
+  const offset = (page - 1) * limit;
+
+  const redisKey = `movies:search=${search}&genre=${genre}&page=${page}&limit=${limit}`;
   try {
+    const cached = await redisClient.get(redisKey);
+    if (cached) {
+      return res.status(http.HTTP_STATUS_OK).json({
+        success: true,
+        message: "Data film berhasil diambil dari cache",
+        data: JSON.parse(cached),
+      });
+    }
+
+    const whereClause = {};
+    if (search) {
+      whereClause.title = { [Op.iLike]: `%${search}%` };
+    }
+
+    const count = await Movie.count({
+      where: whereClause,
+      include: [
+        {
+          model: Genre,
+          as: "genres",
+          where: genre
+            ? { genre_name: { [Op.iLike]: `%${genre}%` } }
+            : undefined,
+          through: { attributes: [] },
+        },
+      ],
+      distinct: true,
+    });
+
     const movies = await Movie.findAll({
+      where: whereClause,
       include: [
         {
           model: Cast,
@@ -20,6 +55,9 @@ exports.getAllMovies = async function (_req, res) {
           model: Genre,
           as: "genres",
           attributes: ["genre_name"],
+          where: genre
+            ? { genre_name: { [Op.iLike]: `%${genre}%` } }
+            : undefined,
           through: { attributes: [] },
         },
         {
@@ -29,6 +67,8 @@ exports.getAllMovies = async function (_req, res) {
           through: { attributes: [] },
         },
       ],
+      offset,
+      limit: parseInt(limit),
     });
 
     if (!movies || movies.length === 0) {
@@ -37,8 +77,6 @@ exports.getAllMovies = async function (_req, res) {
         message: "Tidak ada data film ditemukan",
       });
     }
-
-    console.log("Raw movies data:", JSON.stringify(movies, null, 2));
 
     const result = movies.map((movie) => ({
       id: movie.id,
@@ -66,13 +104,23 @@ exports.getAllMovies = async function (_req, res) {
           : "No directors",
     }));
 
+    const meta = {
+      total: count,
+      page: parseInt(page),
+      limit: parseInt(limit),
+      totalPage: Math.ceil(count / limit),
+    };
+
+    await redisClient.setEx(redisKey, 600, JSON.stringify(result));
+
     res.status(http.HTTP_STATUS_OK).json({
       success: true,
       message: "Data film berhasil diambil",
+      page_info: meta,
       data: result,
     });
   } catch (error) {
-    return res.status(http.HTTP2_STATUS_INTERNAL_SERVER_ERROR).json({
+    return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
       success: false,
       message: "Terjadi kesalahan server saat mengambil data film",
       error: error.message,
