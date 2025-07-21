@@ -282,4 +282,14 @@ Host: localhost:8080
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbGUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AbWFpbC5jb20iLCJpYXQiOjE3NTMwODYzNTUsImV4cCI6MTc1MzA5MzU1NX0.V7Jb36GlsboQIIcDn2lEhsSP6GA9GIf6-dWk4X4YTaM
 
+###
+POST /admin/times
+Host: localhost:8080
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbGUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AbWFpbC5jb20iLCJpYXQiOjE3NTMwODYzNTUsImV4cCI6MTc1MzA5MzU1NX0.V7Jb36GlsboQIIcDn2lEhsSP6GA9GIf6-dWk4X4YTaM
+
+{
+  "time": "14:30"
+}
+
 

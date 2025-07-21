@@ -12,6 +12,7 @@ adminRouter.post(
   uploadMovieImages,
   adminController.createMovie
 );
+adminRouter.post("/times", verifyToken, isAdmin, adminController.createTime);
 adminRouter.get(
   "/movies/:id",
   verifyToken,

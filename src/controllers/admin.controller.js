@@ -1,5 +1,5 @@
 const { constants: http } = require("http2");
-const { Movie, Cast, Genre, Director } = require("../models");
+const { Movie, Cast, Genre, Director, Time } = require("../models");
 const fs = require("fs");
 const path = require("path");
 
@@ -639,6 +639,34 @@ exports.updateMovie = async function (req, res) {
     return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
       success: false,
       message: "Terjadi kesalahan server saat mencoba memperbarui movie.",
+      error: error.message,
+    });
+  }
+};
+
+exports.createTime = async function (req, res) {
+  try {
+    const { time } = req.body;
+
+    if (!time) {
+      return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+        success: false,
+        message: "Data time tidak boleh kosong.",
+      });
+    }
+
+    const newTime = await Time.create({ time });
+
+    return res.status(http.HTTP_STATUS_CREATED).json({
+      success: true,
+      message: "Waktu tayang berhasil ditambahkan.",
+      data: newTime,
+    });
+  } catch (error) {
+    console.error("Error in createTime:", error);
+    return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Terjadi kesalahan server saat menambahkan waktu tayang.",
       error: error.message,
     });
   }
