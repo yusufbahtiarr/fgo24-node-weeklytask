@@ -8,6 +8,7 @@ const {
   PaymentMethod,
   TransactionDetail,
 } = require("../models");
+const { Op } = require("sequelize");
 
 exports.getAllTransaction = async function (req, res) {
   try {
@@ -89,6 +90,12 @@ exports.getBookedSeats = async function (req, res) {
   }
 
   try {
+    const startOfDay = new Date(movie_date);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(movie_date);
+    endOfDay.setHours(23, 59, 59, 999);
+
     const seats = await TransactionDetail.findAll({
       attributes: ["seat"],
       include: [
@@ -98,7 +105,9 @@ exports.getBookedSeats = async function (req, res) {
           attributes: [],
           where: {
             movie_id: Number(movie_id),
-            movie_date: new Date(movie_date),
+            movie_date: {
+              [Op.between]: [startOfDay, endOfDay],
+            },
             cinema_id: Number(cinema),
             time_id: Number(time),
             location_id: Number(location),
@@ -107,7 +116,7 @@ exports.getBookedSeats = async function (req, res) {
       ],
     });
 
-    const seatResults = seats.map((s) => s.seat_number);
+    const seatResults = seats.map((s) => s.seat);
 
     return res.status(http.HTTP_STATUS_OK).json({
       success: true,
