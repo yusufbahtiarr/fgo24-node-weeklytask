@@ -392,3 +392,35 @@ exports.getAllCasts = async function (_req, res) {
     });
   }
 };
+
+/**
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ */
+exports.getAllDirectors = async function (_req, res) {
+  try {
+    const directors = await Director.findAll({
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+    });
+
+    if (!directors || directors.length === 0) {
+      return res.status(http.HTTP_STATUS_NOT_FOUND).json({
+        success: false,
+        message: "Tidak ada data sutradara ditemukan.",
+      });
+    }
+
+    res.status(http.HTTP_STATUS_OK).json({
+      success: true,
+      message: "Data sutradara berhasil diambil.",
+      data: directors,
+    });
+  } catch (error) {
+    console.error("Error in getAllDirectors:", error);
+    return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Terjadi kesalahan server saat mengambil data sutradara.",
+      error: error.message,
+    });
+  }
+};

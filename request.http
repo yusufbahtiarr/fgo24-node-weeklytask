@@ -107,6 +107,9 @@ Host: localhost:8080
 ###
 GET /movies/casts
 Host: localhost:8080
+###
+GET /movies/directors
+Host: localhost:8080
 
 
 
