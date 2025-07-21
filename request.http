@@ -23,7 +23,16 @@ Host: localhost:8080
 Content-Type: application/json
 
 {
-  "email": "admin@mail.com"
+  "email": "budi@mail.com"
+}
+###
+POST /auth/reset-password/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImVtYWlsIjoiYnVkaUBtYWlsLmNvbSIsImlhdCI6MTc1MzA5MzU3MywiZXhwIjoxNzUzMDk0MTczfQ.BIinQuCwHDo5pcZ8vxi7mKdMuZNnQemn8Ww3EoTZ18s
+Host: localhost:8080
+Content-Type: application/json
+
+{
+  "password": "budi321",
+  "confirm_password": "budi321"
 }
 ###
 

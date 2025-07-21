@@ -2,7 +2,11 @@ const { constants: http } = require("http2");
 const { hashPassword } = require("../utils/password");
 const { User, Profile } = require("../models");
 const { verifyPassword } = require("../utils/password");
-const { generateToken, generateResetToken } = require("../utils/jwt");
+const {
+  generateToken,
+  generateResetToken,
+  verifyToken,
+} = require("../utils/jwt");
 const redisClient = require("../lib/redis");
 
 /**
@@ -166,10 +170,13 @@ exports.forgotPassword = async function (req, res) {
       });
     }
 
-    const resetToken = generateResetToken({ id: user.id, email: user.email });
+    const resetToken = generateResetToken({
+      userId: user.id,
+      email: user.email,
+    });
 
-    const redisKey = `reset:${user.id}`;
-    await redisClient.setEx(redisKey, 600, resetToken);
+    const redisKey = `reset_password:${resetToken}`;
+    await redisClient.setEx(redisKey, 600, String(user.id));
 
     return res.status(http.HTTP_STATUS_OK).json({
       success: true,
@@ -188,38 +195,82 @@ exports.forgotPassword = async function (req, res) {
   }
 };
 
-exports.resetPassword = function (req, res) {
-  const { otp, new_password, confirm_password } = req.body;
-  if (!otp && !new_password && !confirm_password) {
+/**
+ *
+ * @param { import("express").Request} req
+ * @param { import("express").Response} res
+ * @returns
+ */
+
+exports.resetPassword = async (req, res) => {
+  const { token } = req.params;
+  const { password, confirm_password } = req.body;
+  console.log("Token dari params:", req.params.token);
+
+  if (!token) {
     return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
       success: false,
-      message: "Otp, new password dan confirm password tidak boleh kosong",
-    });
-  }
-  if (new_password !== confirm_password) {
-    return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
-      success: false,
-      message: "new password dan confirm password tidak sama",
-    });
-  }
-  const userId = verifyOTP(otp);
-  if (!userId) {
-    res.status(http.HTTP_STATUS_NOT_FOUND).json({
-      success: false,
-      message: "OTP tidak valid",
+      message: "Token tidak ada.",
     });
   }
 
-  const user = updatePassword(userId, new_password);
-  if (!user) {
-    res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
+  const decoded = verifyToken(token);
+  if (!decoded || !decoded.userId) {
+    return res.status(http.HTTP_STATUS_UNAUTHORIZED).json({
       success: false,
-      message: "Gagal melakukan reset password",
+      message: "Token tidak valid atau telah kadaluarsa.",
     });
   }
 
-  res.status(http.HTTP_STATUS_OK).json({
-    success: true,
-    message: "Reset password berhasil",
-  });
+  const userId = decoded.userId;
+
+  const tokenKey = `reset_password:${token}`;
+  const exists = await redisClient.exists(tokenKey);
+  if (!exists) {
+    return res.status(http.HTTP_STATUS_UNAUTHORIZED).json({
+      success: false,
+      message: "Token reset password tidak ditemukan atau sudah digunakan.",
+    });
+  }
+
+  if (!password || !confirm_password) {
+    return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+      success: false,
+      message: "Password dan konfirmasi password wajib diisi",
+    });
+  }
+
+  if (password !== confirm_password) {
+    return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+      success: false,
+      message: "Password dan konfirmasi tidak cocok",
+    });
+  }
+
+  try {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(http.HTTP_STATUS_NOT_FOUND).json({
+        success: false,
+        message: "Pengguna tidak ditemukan.",
+      });
+    }
+
+    const hashed = await hashPassword(password);
+
+    await User.update({ password: hashed }, { where: { id: userId } });
+
+    await redisClient.del(tokenKey);
+
+    return res.status(http.HTTP_STATUS_OK).json({
+      success: true,
+      message: "Password berhasil diperbarui",
+    });
+  } catch (err) {
+    console.error("Reset Password Error:", err);
+    return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Terjadi kesalahan saat mereset password",
+    });
+  }
 };
