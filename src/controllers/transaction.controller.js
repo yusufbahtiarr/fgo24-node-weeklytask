@@ -260,3 +260,36 @@ exports.createTransaction = async function (req, res) {
     });
   }
 };
+
+/**
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ */
+exports.getAllPaymentMethods = async function (_req, res) {
+  try {
+    const paymentMethods = await PaymentMethod.findAll({
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+    });
+
+    if (!paymentMethods || paymentMethods.length === 0) {
+      return res.status(http.HTTP_STATUS_NOT_FOUND).json({
+        success: false,
+        message: "Tidak ada metode pembayaran ditemukan.",
+      });
+    }
+
+    res.status(http.HTTP_STATUS_OK).json({
+      success: true,
+      message: "Data metode pembayaran berhasil diambil.",
+      data: paymentMethods,
+    });
+  } catch (error) {
+    console.error("Error in getAllPaymentMethods:", error);
+    return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message:
+        "Terjadi kesalahan server saat mengambil data metode pembayaran.",
+      error: error.message,
+    });
+  }
+};

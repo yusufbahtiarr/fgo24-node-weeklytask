@@ -11,7 +11,12 @@ transactionRouter.get(
   transactionController.getAllTransaction
 );
 transactionRouter.get(
-  "/booked_seats",
+  "/payment-methods",
+  verifyToken,
+  transactionController.getAllPaymentMethods
+);
+transactionRouter.get(
+  "/booked-seats",
   verifyToken,
   transactionController.getBookedSeats
 );
