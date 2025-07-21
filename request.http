@@ -95,6 +95,9 @@ Host: localhost:8080
 ###
 GET /movies/12
 Host: localhost:8080
+###
+GET /movies/upcoming
+Host: localhost:8080
 
 
 
