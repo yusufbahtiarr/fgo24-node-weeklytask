@@ -160,11 +160,54 @@ exports.createTransaction = async function (req, res) {
       !movie_id ||
       !payment_method_id ||
       !time_id ||
-      !seats
+      !seats ||
+      !Array.isArray(seats) ||
+      seats.length === 0
     ) {
       return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
         success: false,
         message: "Semua data harus diisi!",
+      });
+    }
+
+    const startOfDay = new Date(movie_date);
+    startOfDay.setUTCHours(0, 0, 0, 0);
+    const endOfDay = new Date(movie_date);
+    endOfDay.setUTCHours(23, 59, 59, 999);
+
+    const existingBookedSeats = await TransactionDetail.findAll({
+      attributes: ["seat"],
+      include: [
+        {
+          model: Transaction,
+          as: "transaction",
+          attributes: [],
+          where: {
+            movie_id: movie_id,
+            movie_date: {
+              [Op.between]: [startOfDay, endOfDay],
+            },
+            cinema_id: cinema_id,
+            time_id: time_id,
+            location_id: location_id,
+          },
+        },
+      ],
+      where: {
+        seat: {
+          [Op.in]: seats,
+        },
+      },
+    });
+
+    if (existingBookedSeats.length > 0) {
+      const alreadyBookedSeats = existingBookedSeats.map((s) => s.seat);
+      return res.status(http.HTTP_STATUS_CONFLICT).json({
+        success: false,
+        message: `Beberapa kursi yang Anda pilih sudah dipesan: ${alreadyBookedSeats.join(
+          ", "
+        )}.`,
+        booked_seats: alreadyBookedSeats,
       });
     }
 
