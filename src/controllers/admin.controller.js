@@ -197,3 +197,167 @@ exports.deleteMovie = async function (req, res) {
     });
   }
 };
+
+/**
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ */
+exports.createMovie = async function (req, res) {
+  let newMovie;
+  try {
+    const {
+      title,
+      poster_url,
+      backdrop_url,
+      release_date,
+      runtime,
+      overview,
+      rating,
+      casts,
+      genres,
+      directors,
+    } = req.body;
+
+    if (
+      !title ||
+      !release_date ||
+      !runtime ||
+      !overview ||
+      !rating ||
+      !poster_url ||
+      !backdrop_url
+    ) {
+      return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+        success: false,
+        message:
+          "Judul, poster, backdrop, tanggal rilis, durasi, dan overview movie wajib diisi.",
+      });
+    }
+
+    const newMovie = await Movie.create({
+      title,
+      poster_url,
+      backdrop_url,
+      release_date,
+      runtime,
+      overview,
+      rating,
+    });
+
+    if (!newMovie) {
+      return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Gagal membuat entri movie baru.",
+      });
+    }
+
+    const associationPromises = [];
+
+    if (casts && Array.isArray(casts) && casts.length > 0) {
+      const existingCasts = await Cast.findAll({ where: { id: casts } });
+      if (existingCasts.length !== casts.length) {
+        return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+          success: false,
+          message: "Beberapa ID cast yang diberikan tidak valid.",
+        });
+      }
+      associationPromises.push(newMovie.setCasts(casts));
+    }
+
+    if (genres && Array.isArray(genres) && genres.length > 0) {
+      const existingGenres = await Genre.findAll({ where: { id: genres } });
+      if (existingGenres.length !== genres.length) {
+        return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+          success: false,
+          message: "Beberapa ID genre yang diberikan tidak valid.",
+        });
+      }
+      associationPromises.push(newMovie.setGenres(genres));
+    }
+
+    if (directors && Array.isArray(directors) && directors.length > 0) {
+      const existingDirectors = await Director.findAll({
+        where: { id: directors },
+      });
+      if (existingDirectors.length !== directors.length) {
+        return res.status(http.HTTP_STATUS_BAD_REQUEST).json({
+          success: false,
+          message: "Beberapa ID director yang diberikan tidak valid.",
+        });
+      }
+      associationPromises.push(newMovie.setDirectors(directors));
+    }
+
+    await Promise.all(associationPromises);
+
+    const fullMovie = await Movie.findByPk(newMovie.id, {
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+      include: [
+        {
+          model: Cast,
+          as: "casts",
+          attributes: ["id", "cast_name"],
+          through: { attributes: [] },
+        },
+        {
+          model: Genre,
+          as: "genres",
+          attributes: ["id", "genre_name"],
+          through: { attributes: [] },
+        },
+        {
+          model: Director,
+          as: "directors",
+          attributes: ["id", "director_name"],
+          through: { attributes: [] },
+        },
+      ],
+    });
+
+    if (!fullMovie) {
+      return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message:
+          "Movie berhasil dibuat, namun gagal mengambil detail lengkapnya.",
+      });
+    }
+
+    res.status(http.HTTP_STATUS_CREATED).json({
+      success: true,
+      message: "Movie berhasil ditambahkan!",
+      data: {
+        id: fullMovie.id,
+        title: fullMovie.title,
+        poster_url: fullMovie.poster_url,
+        backdrop_url: fullMovie.backdrop_url,
+        release_date: fullMovie.release_date,
+        runtime: fullMovie.runtime,
+        overview: fullMovie.overview,
+        rating: fullMovie.rating,
+        casts: fullMovie.casts.map((cast) => ({
+          name: cast.cast_name,
+        })),
+        genres: fullMovie.genres.map((genre) => ({
+          name: genre.genre_name,
+        })),
+        directors: fullMovie.directors.map((director) => ({
+          name: director.director_name,
+        })),
+      },
+    });
+  } catch (error) {
+    console.error("Error in createMovie:", error);
+    if (newMovie && newMovie.id) {
+      await newMovie
+        .destroy()
+        .catch((destroyErr) =>
+          console.error("Failed to rollback movie creation:", destroyErr)
+        );
+    }
+    return res.status(http.HTTP_STATUS_INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Terjadi kesalahan server saat mencoba menambahkan movie.",
+      error: error.message,
+    });
+  }
+};
